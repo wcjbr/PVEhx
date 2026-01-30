@@ -6,7 +6,7 @@
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
-            "program": "/home/archzero/Apps/Godot/Godot_v4.5.1-stable_mono_linux_x86_64/Godot",
+            "program": "godot-mono",
             "args": [],
             "cwd": "${workspaceFolder}",
             "stopAtEntry": false,
