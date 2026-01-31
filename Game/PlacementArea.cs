@@ -16,6 +16,7 @@ public partial class PlacementArea : Area2D
 	
 	private List<Plant> _plantsInArea = new List<Plant>();
 	private ColorRect _debugRect;
+	private GridSystem _gridSystem; // 网格系统引用
 
 	public override void _Ready()
 	{
@@ -23,10 +24,45 @@ public partial class PlacementArea : Area2D
 		AreaEntered += OnAreaEntered;
 		AreaExited += OnAreaExited;
 		
+		// 查找网格系统
+		FindGridSystem();
+		
 		// 创建调试视觉（可选）
 		if (ShowDebugVisual)
 		{
 			CreateDebugVisual();
+		}
+	}
+	
+	/// <summary>
+	/// 查找网格系统
+	/// </summary>
+	private void FindGridSystem()
+	{
+		var root = GetTree().Root;
+		if (root != null)
+		{
+			_gridSystem = root.GetNodeOrNull<GridSystem>("GridSystem");
+			
+			if (_gridSystem == null)
+			{
+				_gridSystem = GetTree().CurrentScene?.GetNodeOrNull<GridSystem>("GridSystem");
+			}
+			
+			if (_gridSystem == null)
+			{
+				Node currentNode = this;
+				while (currentNode != null && _gridSystem == null)
+				{
+					_gridSystem = currentNode.GetNodeOrNull<GridSystem>("GridSystem");
+					currentNode = currentNode.GetParent();
+				}
+			}
+		}
+		
+		if (_gridSystem != null)
+		{
+			GD.Print($"PlacementArea found GridSystem: {_gridSystem.Name}");
 		}
 	}
 	
@@ -57,7 +93,7 @@ public partial class PlacementArea : Area2D
 			// 更新植物状态（如果正在拖动）
 			if (plant.Modulate.A < 1.0f) // 半透明表示正在拖动
 			{
-				plant.Modulate = new Color(1, 1, 1, 0.7f); // 可以放置，半透明白色
+				plant.Modulate = new Color(1, 1, 1, 0.8f); // 可以放置，半透明正常色
 			}
 		}
 	}
@@ -73,7 +109,7 @@ public partial class PlacementArea : Area2D
 			// 更新植物状态（如果正在拖动）
 			if (plant.Modulate.A < 1.0f) // 半透明表示正在拖动
 			{
-				plant.Modulate = new Color(1, 0.5f, 0.5f, 0.7f); // 不能放置，半透明红色
+				plant.Modulate = new Color(1, 0.3f, 0.3f, 0.8f); // 不能放置，明显的红色滤镜
 			}
 		}
 	}
@@ -98,31 +134,75 @@ public partial class PlacementArea : Area2D
 	}
 	
 	/// <summary>
-	/// 检查植物是否可以放置在此处（考虑与其他植物的重叠）
+	/// 检查植物是否可以放置在此处（考虑网格系统）
 	/// </summary>
 	public bool CanPlacePlantHere(Plant plant)
+	{
+		// 如果有网格系统，优先使用网格检查
+		if (_gridSystem != null)
+		{
+			return CanPlacePlantWithGrid(plant);
+		}
+		
+		// 否则使用原有的检查方式
+		return CanPlacePlantBasic(plant);
+	}
+	
+	/// <summary>
+	/// 使用网格系统的植物放置检查
+	/// </summary>
+	private bool CanPlacePlantWithGrid(Plant plant)
+	{
+		// 检查是否在网格区域内
+		if (!_gridSystem.IsPointInGridArea(plant.GlobalPosition))
+			return false;
+			
+		// 找到对应的网格坐标
+		Vector2I gridPos = _gridSystem.WorldToGrid(plant.GlobalPosition);
+		
+		// 检查格子是否可用
+		if (!_gridSystem.IsGridAvailable(gridPos))
+			return false;
+			
+		// 检查是否与其他植物重叠（使用原有的碰撞检测）
+		return !HasOverlapWithExistingPlants(plant);
+	}
+	
+	/// <summary>
+	/// 基本的植物放置检查（原有逻辑）
+	/// </summary>
+	private bool CanPlacePlantBasic(Plant plant)
 	{
 		// 首先检查是否在区域内
 		if (!IsPointInside(plant.GlobalPosition))
 			return false;
 			
 		// 检查是否与其他植物重叠
+		return !HasOverlapWithExistingPlants(plant);
+	}
+	
+	/// <summary>
+	/// 检查是否与其他植物重叠
+	/// </summary>
+	private bool HasOverlapWithExistingPlants(Plant plant)
+	{
 		var plantCollision = plant.GetNodeOrNull<Area2D>("PlantCollision");
 		if (plantCollision == null)
-			return true; // 如果没有碰撞区域，假设可以放置
+			return false; // 如果没有碰撞区域，假设可以放置
 			
 		foreach (var otherPlant in _plantsInArea)
 		{
 			if (otherPlant == plant) continue;
 			
 			var otherCollision = otherPlant.GetNodeOrNull<Area2D>("PlantCollision");
-			if (otherCollision != null && plantCollision.OverlapsArea(otherCollision)&&otherCollision.GetParent().GetNodeOrNull<AnimatedSprite2D>("AnimatedSprite2D").Animation!="Bullet")
+			if (otherCollision != null && plantCollision.OverlapsArea(otherCollision) && 
+				otherCollision.GetParent().GetNodeOrNull<AnimatedSprite2D>("AnimatedSprite2D")?.Animation != "Bullet")
 			{
-				return false; // 与其他植物重叠，不能放置
+				return true; // 与其他植物重叠，不能放置
 			}
 		}
 		
-		return true;
+		return false;
 	}
 	
 	/// <summary>
@@ -142,9 +222,38 @@ public partial class PlacementArea : Area2D
 		{
 			if (IsInstanceValid(plant))
 			{
+				// 如果有网格系统，释放对应的格子
+				if (_gridSystem != null)
+				{
+					Vector2I gridPos = _gridSystem.WorldToGrid(plant.GlobalPosition);
+					_gridSystem.MarkGridFree(gridPos);
+				}
+				
 				plant.QueueFree();
 			}
 		}
 		_plantsInArea.Clear();
+		
+		// 如果有网格系统，重置所有格子
+		if (_gridSystem != null)
+		{
+			_gridSystem.ResetGrid();
+		}
+	}
+	
+	/// <summary>
+	/// 获取网格系统引用
+	/// </summary>
+	public GridSystem GetGridSystem()
+	{
+		return _gridSystem;
+	}
+	
+	/// <summary>
+	/// 设置网格系统引用
+	/// </summary>
+	public void SetGridSystem(GridSystem gridSystem)
+	{
+		_gridSystem = gridSystem;
 	}
 }

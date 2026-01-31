@@ -51,6 +51,7 @@ public partial class ShootingPlant : Plant
 				bullet._sprite.Animation = "Bullet";
 				bullet._sprite.Play();
 			}
+			bullet.Position = Position+new Vector2(0f,-20.0f);
 		}
 	}
 	

@@ -15,6 +15,9 @@ public partial class PlantCard : Node2D
 	private Vector2 _dragOffset = Vector2.Zero;
 	
 	private PlacementArea _placementArea; // 放置区域引用
+	private GridSystem _gridSystem; // 网格系统引用
+	private bool _useGridSnapping = true; // 是否启用格子吸附
+	private float _snapSmoothness = 0.3f; // 吸附平滑度
 
 	public override void _Ready()
 	{
@@ -23,6 +26,9 @@ public partial class PlantCard : Node2D
 		
 		// 查找放置区域
 		FindPlacementArea();
+		
+		// 查找网格系统
+		FindGridSystem();
 		
 		if (_sprite != null)
 		{
@@ -63,7 +69,6 @@ public partial class PlantCard : Node2D
 	private void FindPlacementArea()
 	{
 		// 查找场景中的放置区域
-		// 假设放置区域是场景根节点的子节点，并且名称为"PlacementArea"
 		var root = GetTree().Root;
 		if (root != null)
 		{
@@ -97,16 +102,127 @@ public partial class PlantCard : Node2D
 			GD.Print($"Found PlacementArea: {_placementArea.Name}");
 		}
 	}
+	
+	private void FindGridSystem()
+	{
+		// 查找场景中的网格系统
+		var root = GetTree().Root;
+		if (root != null)
+		{
+			_gridSystem = root.GetNodeOrNull<GridSystem>("GridSystem");
+			
+			if (_gridSystem == null)
+			{
+				// 尝试在当前场景中查找
+				_gridSystem = GetTree().CurrentScene?.GetNodeOrNull<GridSystem>("GridSystem");
+			}
+			
+			if (_gridSystem == null)
+			{
+				// 尝试在父节点中查找
+				Node currentNode = this;
+				while (currentNode != null && _gridSystem == null)
+				{
+					_gridSystem = currentNode.GetNodeOrNull<GridSystem>("GridSystem");
+					currentNode = currentNode.GetParent();
+				}
+			}
+		}
+		
+		if (_gridSystem == null)
+		{
+			GD.Print("GridSystem not found, falling back to basic placement");
+			_useGridSnapping = false;
+		}
+		else
+		{
+			GD.Print($"Found GridSystem: {_gridSystem.Name}");
+			_useGridSnapping = true;
+			
+			// 同时查找网格覆盖层
+			FindGridOverlay();
+		}
+	}
 
 	public override void _Process(double delta)
 	{
 		if (_isDragging && _draggedPlant != null)
 		{
-			// 更新植物实例位置，使其跟随鼠标
-			_draggedPlant.GlobalPosition = GetGlobalMousePosition() + _dragOffset;
+			Vector2 mousePos = GetGlobalMousePosition();
+			
+			if (_useGridSnapping && _gridSystem != null)
+			{
+				// 使用网格吸附
+				UpdatePlantPositionWithGridSnapping(mousePos, (float)delta);
+			}
+			else
+			{
+				// 基本拖动（无网格吸附）
+				_draggedPlant.GlobalPosition = mousePos + _dragOffset;
+			}
 			
 			// 检查是否可以放置
 			UpdatePlacementPreview();
+		}
+	}
+	
+	/// <summary>
+	/// 使用网格吸附更新植物位置
+	/// </summary>
+	private void UpdatePlantPositionWithGridSnapping(Vector2 mousePos, float delta)
+	{
+		// 找到最近的可用格子
+		Vector2I? nearestGrid = _gridSystem.FindNearestAvailableGrid(mousePos);
+		
+		if (nearestGrid.HasValue)
+		{
+			// 获取目标格子的中心位置
+			Vector2 targetPos = _gridSystem.GridToWorld(nearestGrid.Value.X, nearestGrid.Value.Y);
+			
+			// 平滑移动到目标位置
+			_draggedPlant.GlobalPosition = _draggedPlant.GlobalPosition.Lerp(targetPos, _snapSmoothness);
+			
+			// 存储当前目标格子用于放置判断
+			_currentTargetGrid = nearestGrid.Value;
+		}
+		else
+		{
+			// 没有可用格子，跟随鼠标但保持在网格区域内
+			if (_gridSystem.IsPointInGridArea(mousePos))
+			{
+				_draggedPlant.GlobalPosition = mousePos + _dragOffset;
+			}
+			_currentTargetGrid = null;
+		}
+	}
+	
+	private Vector2I? _currentTargetGrid; // 当前目标格子
+	private GridOverlay _gridOverlay; // 网格覆盖层引用
+	
+	private void FindGridOverlay()
+	{
+		// 查找场景中的网格覆盖层
+		var root = GetTree().Root;
+		if (root != null)
+		{
+			_gridOverlay = root.GetNodeOrNull<GridOverlay>("GridOverlay");
+			
+			if (_gridOverlay == null)
+			{
+				// 尝试在当前场景中查找
+				_gridOverlay = GetTree().CurrentScene?.GetNodeOrNull<GridOverlay>("GridOverlay");
+			}
+			
+			if (_gridOverlay == null)
+			{
+				// 尝试在父节点中查找
+				Node currentNode = this;
+				while (currentNode != null && _gridOverlay == null)
+				{
+					_gridOverlay = currentNode.GetNodeOrNull<GridOverlay>("GridOverlay");
+					currentNode = currentNode.GetParent();
+				}
+			}
 		}
 	}
 	
@@ -118,9 +234,16 @@ public partial class PlantCard : Node2D
 		bool canPlaceHere = _placementArea.CanPlacePlantHere(_draggedPlant);
 		
 		// 更新植物颜色
-		_draggedPlant.Modulate = canPlaceHere ? 
-			new Color(1, 1, 1, 0.7f) : // 可以放置，半透明白色
-			new Color(1, 0.5f, 0.5f, 0.7f); // 不能放置，半透明红色
+		if (canPlaceHere)
+		{
+			// 可以放置，显示正常颜色（略带透明）
+			_draggedPlant.Modulate = new Color(1, 1, 1, 0.8f);
+		}
+		else
+		{
+			// 不能放置，显示明显的红色滤镜
+			_draggedPlant.Modulate = new Color(1, 0.3f, 0.3f, 0.8f); // 更红更明显
+		}
 	}
 
 	public override void _Input(InputEvent @event)
@@ -203,7 +326,7 @@ public partial class PlantCard : Node2D
 			_draggedPlant.GlobalPosition = mousePos;
 			
 			// 设置半透明，表示正在拖动
-			_draggedPlant.Modulate = new Color(1, 1, 1, 0.7f);
+			_draggedPlant.Modulate = new Color(1, 1, 1, 0.8f);
 			
 			// 设置拖动状态
 			_isDragging = true;
@@ -224,18 +347,45 @@ public partial class PlantCard : Node2D
 	{
 		if (_draggedPlant != null)
 		{
-			if (_placementArea != null && _placementArea.CanPlacePlantHere(_draggedPlant))
+			bool canPlace = false;
+			Vector2 finalPosition = _draggedPlant.GlobalPosition;
+			
+			if (_useGridSnapping && _gridSystem != null && _currentTargetGrid.HasValue)
+			{
+				// 网格吸附模式下的放置检查
+				canPlace = CanPlaceInGridMode();
+				if (canPlace)
+				{
+					// 强制吸附到格子中心
+					finalPosition = _gridSystem.GridToWorld(_currentTargetGrid.Value.X, _currentTargetGrid.Value.Y);
+					_draggedPlant.GlobalPosition = finalPosition;
+				}
+			}
+			else if (_placementArea != null)
+			{
+				// 基本模式下的放置检查
+				canPlace = _placementArea.CanPlacePlantHere(_draggedPlant);
+			}
+			
+			if (canPlace)
 			{
 				// 可以放置：恢复不透明度，设置种植状态
 				_draggedPlant.Modulate = Colors.White;
 				_draggedPlant.SetPlanted(true);
-				GD.Print($"Plant placed at {_draggedPlant.GlobalPosition}");
+				
+				// 标记格子为已占用
+				if (_useGridSnapping && _gridSystem != null && _currentTargetGrid.HasValue)
+				{
+					_gridSystem.MarkGridOccupied(_currentTargetGrid.Value);
+				}
+				
+				GD.Print($"Plant placed at {finalPosition}");
 			}
 			else
 			{
 				// 不能放置：销毁植物实例
 				_draggedPlant.QueueFree();
-				GD.Print("Cannot place plant here (outside placement area or overlapping with other plants)");
+				GD.Print("Cannot place plant here");
 			}
 		}
 		
@@ -243,6 +393,37 @@ public partial class PlantCard : Node2D
 		_isDragging = false;
 		_draggedPlant = null;
 		_dragOffset = Vector2.Zero;
+		_currentTargetGrid = null;
+	}
+	
+	/// <summary>
+	/// 网格模式下的放置检查
+	/// </summary>
+	private bool CanPlaceInGridMode()
+	{
+		if (!_currentTargetGrid.HasValue) return false;
+		
+		// 检查格子是否可用
+		if (!_gridSystem.IsGridAvailable(_currentTargetGrid.Value)) 
+			return false;
+			
+		// 检查是否在网格区域内
+		Vector2 gridCenter = _gridSystem.GridToWorld(_currentTargetGrid.Value.X, _currentTargetGrid.Value.Y);
+		if (!_gridSystem.IsPointInGridArea(gridCenter))
+			return false;
+			
+		// 如果有放置区域，也进行检查
+		if (_placementArea != null)
+		{
+			// 临时设置植物位置到格子中心进行检查
+			Vector2 originalPos = _draggedPlant.GlobalPosition;
+			_draggedPlant.GlobalPosition = gridCenter;
+			bool canPlace = _placementArea.CanPlacePlantHere(_draggedPlant);
+			_draggedPlant.GlobalPosition = originalPos; // 恢复原位置
+			return canPlace;
+		}
+		
+		return true;
 	}
 	
 	/// <summary>
