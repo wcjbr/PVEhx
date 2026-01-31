@@ -34,7 +34,7 @@ project/assembly_name="PVZ"
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/gif-importer/plugin.cfg")
+enabled=PackedStringArray()
 
 [rendering]
 

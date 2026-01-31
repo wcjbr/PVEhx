@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://barglk35cs8qs"
-path="res://.godot/imported/9.png-4e88b63c1da14ee5daa813d777cbb5b6.ctex"
+uid="uid://cgmqwlihro4eh"
+path="res://.godot/imported/13.png-b23015ea81c03637fabae5b66583f816.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Game/豌豆射手/9.png"
-dest_files=["res://.godot/imported/9.png-4e88b63c1da14ee5daa813d777cbb5b6.ctex"]
+source_file="res://Game/Peashooter/13.png"
+dest_files=["res://.godot/imported/13.png-b23015ea81c03637fabae5b66583f816.ctex"]
 
 [params]
 

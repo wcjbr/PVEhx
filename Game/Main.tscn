@@ -1,0 +1,40 @@
+[gd_scene format=3 uid="uid://c0bpbnl8nxydf"]
+
+[ext_resource type="Texture2D" uid="uid://cf1pq53kooprl" path="res://Game/BGs/白天.jpg" id="1_rchnd"]
+[ext_resource type="Texture2D" uid="uid://cobou2dblyxl" path="res://Game/Menu/植物商店.png" id="2_rl4yr"]
+[ext_resource type="Script" uid="uid://dpd3ucdxi17tm" path="res://Game/PlantCardManager.cs" id="3_g5pn2"]
+[ext_resource type="PackedScene" uid="uid://5r5kykdpa5xd" path="res://Game/PeashooterCard.tscn" id="4_haytw"]
+[ext_resource type="Script" uid="uid://cvg67ltj3ngu0" path="res://Game/PlacementArea.cs" id="5_rl4yr"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_rl4yr"]
+
+[node name="Node2D" type="Node2D" unique_id=1464277874]
+
+[node name="GameArea" type="Node2D" parent="." unique_id=1770848058]
+
+[node name="Background" type="Sprite2D" parent="GameArea" unique_id=2140398231]
+position = Vector2(-1.1157074, -2.0000381)
+scale = Vector2(2.5653028, 3.3124998)
+texture = ExtResource("1_rchnd")
+
+[node name="Camera" type="Camera2D" parent="GameArea" unique_id=1327401512]
+
+[node name="Shop" type="Sprite2D" parent="GameArea" unique_id=1111674160]
+position = Vector2(-465, -475)
+scale = Vector2(1.3994255, 1.3994255)
+texture = ExtResource("2_rl4yr")
+
+[node name="PlantCardManager" type="Node2D" parent="." unique_id=1887606989]
+position = Vector2(-748, -480)
+script = ExtResource("3_g5pn2")
+PlantCardScene = ExtResource("4_haytw")
+StartPosition = Vector2(0, 0)
+Spacing = 100.0
+
+[node name="PlacementArea" type="Area2D" parent="." unique_id=1793982603]
+position = Vector2(-112, 41)
+scale = Vector2(50.29393, 42.76801)
+script = ExtResource("5_rl4yr")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="PlacementArea" unique_id=1794086823]
+shape = SubResource("RectangleShape2D_rl4yr")

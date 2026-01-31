@@ -1,0 +1,14 @@
+[gd_scene format=3 uid="uid://ctoto617nr28q"]
+
+[ext_resource type="Script" uid="uid://cvg67ltj3ngu0" path="res://Game/PlacementArea.cs" id="1_1v8rh"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_4jnr1"]
+size = Vector2(31.910831, 120.50562)
+
+[node name="PlacementArea" type="Area2D" unique_id=173263469]
+script = ExtResource("1_1v8rh")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=2130908946]
+position = Vector2(-106.000015, 39.000008)
+scale = Vector2(31.4, 7.12)
+shape = SubResource("RectangleShape2D_4jnr1")

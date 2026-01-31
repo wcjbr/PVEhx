@@ -1,0 +1,26 @@
+[gd_scene format=3 uid="uid://5r5kykdpa5xd"]
+
+[ext_resource type="Script" uid="uid://b5u5lwm1xglk4" path="res://Game/PlantCard.cs" id="1_30g08"]
+[ext_resource type="Texture2D" uid="uid://bfko3dc2g01sn" path="res://Game/Menu/植物卡牌.png" id="1_uvi5o"]
+[ext_resource type="PackedScene" uid="uid://cpst3lhdtw64" path="res://Game/Peashooter.tscn" id="2_cj63l"]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_30g08"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_uvi5o")
+}],
+"loop": true,
+"name": &"Carded",
+"speed": 5.0
+}]
+
+[node name="PeashooterCard" type="Node2D" unique_id=1718776894]
+script = ExtResource("1_30g08")
+PlantScene = ExtResource("2_cj63l")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=984712697]
+position = Vector2(0, 2)
+scale = Vector2(0.71999997, 0.71999997)
+sprite_frames = SubResource("SpriteFrames_30g08")
+animation = &"Carded"
