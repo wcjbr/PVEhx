@@ -2,7 +2,7 @@ using Godot;
 using System;
 
 /// <summary>
-/// 简化的发射类植物
+/// 发射类植物
 /// </summary>
 public partial class ShootingPlant : Plant
 {
@@ -19,7 +19,7 @@ public partial class ShootingPlant : Plant
 	public override void _Process(double delta)
 	{
 		base._Process(delta);
-		
+
 		if (_isBullet)
 		{
 			Position += new Vector2(_bulletSpeed, 0) * (float)delta;
@@ -34,7 +34,13 @@ public partial class ShootingPlant : Plant
 			}
 		}
 	}
-	
+
+	public void OnBulletScreenExited()
+	{
+		if (_sprite.Animation == "Bullet"){
+			QueueFree();
+		}
+	}
 	private void FireBullet()
 	{
 		var bullet = Duplicate() as ShootingPlant;
@@ -44,17 +50,18 @@ public partial class ShootingPlant : Plant
 			bullet.GlobalPosition = GlobalPosition;
 			bullet._isBullet = true;
 			bullet._isPlanted = false;
-			
-			if (bullet._sprite != null && bullet._sprite.SpriteFrames != null && 
+
+			if (bullet._sprite != null && bullet._sprite.SpriteFrames != null &&
 				bullet._sprite.SpriteFrames.HasAnimation("Bullet"))
 			{
 				bullet._sprite.Animation = "Bullet";
 				bullet._sprite.Play();
 			}
-			bullet.Position = Position+new Vector2(0f,-20.0f);
+			bullet.Position = Position + new Vector2(0f, -20.0f);
+
 		}
 	}
-	
+
 	protected override void UpdateAnimation()
 	{
 		if (_sprite != null && _sprite.SpriteFrames != null)

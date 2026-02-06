@@ -194,9 +194,14 @@ public partial class PlacementArea : Area2D
 		{
 			if (otherPlant == plant) continue;
 			
+			// 检查otherPlant是否是子弹，如果是子弹则跳过
+			if (IsBullet(otherPlant))
+			{
+				continue; // 忽略子弹
+			}
+			
 			var otherCollision = otherPlant.GetNodeOrNull<Area2D>("PlantCollision");
-			if (otherCollision != null && plantCollision.OverlapsArea(otherCollision) && 
-				otherCollision.GetParent().GetNodeOrNull<AnimatedSprite2D>("AnimatedSprite2D")?.Animation != "Bullet")
+			if (otherCollision != null && plantCollision.OverlapsArea(otherCollision))
 			{
 				return true; // 与其他植物重叠，不能放置
 			}
@@ -255,5 +260,27 @@ public partial class PlacementArea : Area2D
 	public void SetGridSystem(GridSystem gridSystem)
 	{
 		_gridSystem = gridSystem;
+	}
+	
+	/// <summary>
+	/// 检查植物是否是子弹
+	/// </summary>
+	private bool IsBullet(Plant plant)
+	{
+		var sprite = plant.GetNodeOrNull<AnimatedSprite2D>("AnimatedSprite2D");
+		if (sprite != null && sprite.Animation == "Bullet")
+		{
+			return true;
+		}
+		
+		// 检查是否是射击植物并且是子弹状态
+		if (plant is ShootingPlant shootingPlant)
+		{
+			// 尝试访问_shootingPlant的私有字段_isBullet
+			// 由于无法直接访问私有字段，我们使用动画状态来判断
+			return sprite?.Animation == "Bullet";
+		}
+		
+		return false;
 	}
 }

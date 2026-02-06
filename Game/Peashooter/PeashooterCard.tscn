@@ -1,14 +1,14 @@
 [gd_scene format=3 uid="uid://5r5kykdpa5xd"]
 
 [ext_resource type="Script" uid="uid://b5u5lwm1xglk4" path="res://Game/PlantCard.cs" id="1_30g08"]
-[ext_resource type="Texture2D" uid="uid://bfko3dc2g01sn" path="res://Game/Menu/植物卡牌.png" id="1_uvi5o"]
-[ext_resource type="PackedScene" uid="uid://cpst3lhdtw64" path="res://Game/Peashooter.tscn" id="2_cj63l"]
+[ext_resource type="PackedScene" uid="uid://cpst3lhdtw64" path="res://Game/Peashooter/Peashooter.tscn" id="2_cj63l"]
+[ext_resource type="Texture2D" uid="uid://b2v6dvang34rn" path="res://Game/Peashooter/PeashooterCard.png" id="3_kglkr"]
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_30g08"]
 animations = [{
 "frames": [{
 "duration": 1.0,
-"texture": ExtResource("1_uvi5o")
+"texture": ExtResource("3_kglkr")
 }],
 "loop": true,
 "name": &"Carded",
@@ -24,3 +24,13 @@ position = Vector2(0, 2)
 scale = Vector2(0.71999997, 0.71999997)
 sprite_frames = SubResource("SpriteFrames_30g08")
 animation = &"Carded"
+
+[node name="Label" type="Label" parent="AnimatedSprite2D" unique_id=1102818567]
+offset_left = -41.666668
+offset_top = 40.27778
+offset_right = 11.111111
+offset_bottom = 63.27778
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+text = "100"
+horizontal_alignment = 1
+vertical_alignment = 1

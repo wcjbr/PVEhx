@@ -1,0 +1,104 @@
+[gd_scene format=3 uid="uid://cpst3lhdtw64"]
+
+[ext_resource type="Script" uid="uid://ceaqtt3ww7vkm" path="res://Game/Plants/ShootingPlant.cs" id="1_jnui7"]
+[ext_resource type="Texture2D" uid="uid://4ih63d12r8cu" path="res://Game/Peashooter/Shoot/豌豆.png" id="2_0yvhh"]
+[ext_resource type="Texture2D" uid="uid://b2v6dvang34rn" path="res://Game/Peashooter/PeashooterCard.png" id="3_jnui7"]
+[ext_resource type="Texture2D" uid="uid://ckwac4qu34jp8" path="res://Game/Peashooter/1.png" id="4_w56j1"]
+[ext_resource type="Texture2D" uid="uid://dyroemnkhshr7" path="res://Game/Peashooter/2.png" id="5_43pka"]
+[ext_resource type="Texture2D" uid="uid://dg0ljfurc78um" path="res://Game/Peashooter/3.png" id="6_ok7l1"]
+[ext_resource type="Texture2D" uid="uid://cq16b1no1sat1" path="res://Game/Peashooter/4.png" id="7_6lv3o"]
+[ext_resource type="Texture2D" uid="uid://c55v5sxn05k2l" path="res://Game/Peashooter/5.png" id="8_ljri7"]
+[ext_resource type="Texture2D" uid="uid://l4kdw0g3k5rt" path="res://Game/Peashooter/6.png" id="9_limge"]
+[ext_resource type="Texture2D" uid="uid://byxau4a8xjhcp" path="res://Game/Peashooter/7.png" id="10_s46b5"]
+[ext_resource type="Texture2D" uid="uid://csv4wn5vt2rhc" path="res://Game/Peashooter/8.png" id="11_3xhf4"]
+[ext_resource type="Texture2D" uid="uid://barglk35cs8qs" path="res://Game/Peashooter/9.png" id="12_gj8dq"]
+[ext_resource type="Texture2D" uid="uid://be2amyj1c716q" path="res://Game/Peashooter/10.png" id="13_ghag4"]
+[ext_resource type="Texture2D" uid="uid://dbchqxo6rn3sa" path="res://Game/Peashooter/11.png" id="14_m2sj6"]
+[ext_resource type="Texture2D" uid="uid://cc3sc238xwfbi" path="res://Game/Peashooter/12.png" id="15_375ha"]
+[ext_resource type="Texture2D" uid="uid://cgmqwlihro4eh" path="res://Game/Peashooter/13.png" id="16_l5uxs"]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_5lltr"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("2_0yvhh")
+}],
+"loop": true,
+"name": &"Bullet",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("3_jnui7")
+}],
+"loop": true,
+"name": &"Carded",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("4_w56j1")
+}, {
+"duration": 1.0,
+"texture": ExtResource("5_43pka")
+}, {
+"duration": 1.0,
+"texture": ExtResource("6_ok7l1")
+}, {
+"duration": 1.0,
+"texture": ExtResource("7_6lv3o")
+}, {
+"duration": 1.0,
+"texture": ExtResource("8_ljri7")
+}, {
+"duration": 1.0,
+"texture": ExtResource("9_limge")
+}, {
+"duration": 1.0,
+"texture": ExtResource("10_s46b5")
+}, {
+"duration": 1.0,
+"texture": ExtResource("11_3xhf4")
+}, {
+"duration": 1.0,
+"texture": ExtResource("12_gj8dq")
+}, {
+"duration": 1.0,
+"texture": ExtResource("13_ghag4")
+}, {
+"duration": 1.0,
+"texture": ExtResource("14_m2sj6")
+}, {
+"duration": 1.0,
+"texture": ExtResource("15_375ha")
+}, {
+"duration": 1.0,
+"texture": ExtResource("16_l5uxs")
+}],
+"loop": true,
+"name": &"Planted",
+"speed": 13.0
+}]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_i4igp"]
+size = Vector2(37.36708, 31.906357)
+
+[node name="Peashooter" type="Node2D" unique_id=489263778]
+script = ExtResource("1_jnui7")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1845840419]
+sprite_frames = SubResource("SpriteFrames_5lltr")
+animation = &"Carded"
+
+[node name="PlantCollision" type="Area2D" parent="." unique_id=308288228]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="PlantCollision" unique_id=1323546731]
+position = Vector2(-0.5000019, -2.9999995)
+scale = Vector2(1.6324528, 2.6327043)
+shape = SubResource("RectangleShape2D_i4igp")
+
+[node name="VisibleOnScreenNotifier2D" type="VisibleOnScreenNotifier2D" parent="." unique_id=1334963150]
+position = Vector2(10, -2)
+rect = Rect2(-10, -10, 24, 24)
+
+[connection signal="screen_exited" from="VisibleOnScreenNotifier2D" to="." method="OnBulletScreenExited"]

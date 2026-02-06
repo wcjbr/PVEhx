@@ -1,0 +1,134 @@
+[gd_scene format=3 uid="uid://celbx00iui3wu"]
+
+[ext_resource type="Script" uid="uid://cv5vsjgvg1apu" path="res://Game/Sun/Sun.cs" id="1_kxd7v"]
+[ext_resource type="Texture2D" uid="uid://d1kyusw1t3x5v" path="res://Game/Sun/frame_001.png" id="2_kfvse"]
+[ext_resource type="Texture2D" uid="uid://d34ikk2kxmeh3" path="res://Game/Sun/frame_002.png" id="3_now88"]
+[ext_resource type="Texture2D" uid="uid://dvs63fij3d5i6" path="res://Game/Sun/frame_003.png" id="4_pkp0j"]
+[ext_resource type="Texture2D" uid="uid://dvgfliui24l6n" path="res://Game/Sun/frame_004.png" id="5_oa4l5"]
+[ext_resource type="Texture2D" uid="uid://2ayxqlj7bfyh" path="res://Game/Sun/frame_005.png" id="6_efsk8"]
+[ext_resource type="Texture2D" uid="uid://cyulv4j5x18o6" path="res://Game/Sun/frame_006.png" id="7_vlnna"]
+[ext_resource type="Texture2D" uid="uid://gl3vx1x26m6b" path="res://Game/Sun/frame_007.png" id="8_h34np"]
+[ext_resource type="Texture2D" uid="uid://c5ncajkomid0c" path="res://Game/Sun/frame_008.png" id="9_cykhp"]
+[ext_resource type="Texture2D" uid="uid://b7ej6v5mop6vg" path="res://Game/Sun/frame_009.png" id="10_ljjku"]
+[ext_resource type="Texture2D" uid="uid://bf8mkwntrrddl" path="res://Game/Sun/frame_010.png" id="11_3inq1"]
+[ext_resource type="Texture2D" uid="uid://cbmttw8yejwwg" path="res://Game/Sun/frame_011.png" id="12_72fep"]
+[ext_resource type="Texture2D" uid="uid://ckh80dy5fwivp" path="res://Game/Sun/frame_012.png" id="13_e4h8h"]
+[ext_resource type="Texture2D" uid="uid://ddpc57nkauao1" path="res://Game/Sun/frame_013.png" id="14_2lmlo"]
+[ext_resource type="Texture2D" uid="uid://tp6n42b03v6o" path="res://Game/Sun/frame_014.png" id="15_botcg"]
+[ext_resource type="Texture2D" uid="uid://7iq2xpasxiuo" path="res://Game/Sun/frame_015.png" id="16_o8nn7"]
+[ext_resource type="Texture2D" uid="uid://bikels1hw8246" path="res://Game/Sun/frame_016.png" id="17_p7yms"]
+[ext_resource type="Texture2D" uid="uid://ditqc7d0nkvmo" path="res://Game/Sun/frame_017.png" id="18_ayknu"]
+[ext_resource type="Texture2D" uid="uid://b2i3x2p7irikh" path="res://Game/Sun/frame_018.png" id="19_2rivt"]
+[ext_resource type="Texture2D" uid="uid://b8du7wel5kd3x" path="res://Game/Sun/frame_019.png" id="20_dyfa4"]
+[ext_resource type="Texture2D" uid="uid://cymj7alnsr2uk" path="res://Game/Sun/frame_020.png" id="21_50juq"]
+[ext_resource type="Texture2D" uid="uid://cs2st7q013mdc" path="res://Game/Sun/frame_021.png" id="22_pktkh"]
+[ext_resource type="Texture2D" uid="uid://2jm6ipoot5de" path="res://Game/Sun/frame_022.png" id="23_glflc"]
+[ext_resource type="Texture2D" uid="uid://b6gnipr5pk31l" path="res://Game/Sun/frame_023.png" id="24_vwues"]
+[ext_resource type="Texture2D" uid="uid://vwqcj36dsw78" path="res://Game/Sun/frame_024.png" id="25_wwfqd"]
+[ext_resource type="Texture2D" uid="uid://dlaml5keimi66" path="res://Game/Sun/frame_025.png" id="26_qbmv0"]
+[ext_resource type="Texture2D" uid="uid://1csra8s7xrgu" path="res://Game/Sun/frame_026.png" id="27_bbjb8"]
+[ext_resource type="Texture2D" uid="uid://cswhh7d22iqr7" path="res://Game/Sun/frame_027.png" id="28_vaj2p"]
+[ext_resource type="Texture2D" uid="uid://dgbdfb8yr3mhk" path="res://Game/Sun/frame_028.png" id="29_bhybq"]
+[ext_resource type="Texture2D" uid="uid://cy5j32x7pwb66" path="res://Game/Sun/frame_029.png" id="30_ehat0"]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_n3xv6"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("2_kfvse")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_now88")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_pkp0j")
+}, {
+"duration": 1.0,
+"texture": ExtResource("5_oa4l5")
+}, {
+"duration": 1.0,
+"texture": ExtResource("6_efsk8")
+}, {
+"duration": 1.0,
+"texture": ExtResource("7_vlnna")
+}, {
+"duration": 1.0,
+"texture": ExtResource("8_h34np")
+}, {
+"duration": 1.0,
+"texture": ExtResource("9_cykhp")
+}, {
+"duration": 1.0,
+"texture": ExtResource("10_ljjku")
+}, {
+"duration": 1.0,
+"texture": ExtResource("11_3inq1")
+}, {
+"duration": 1.0,
+"texture": ExtResource("12_72fep")
+}, {
+"duration": 1.0,
+"texture": ExtResource("13_e4h8h")
+}, {
+"duration": 1.0,
+"texture": ExtResource("14_2lmlo")
+}, {
+"duration": 1.0,
+"texture": ExtResource("15_botcg")
+}, {
+"duration": 1.0,
+"texture": ExtResource("16_o8nn7")
+}, {
+"duration": 1.0,
+"texture": ExtResource("17_p7yms")
+}, {
+"duration": 1.0,
+"texture": ExtResource("18_ayknu")
+}, {
+"duration": 1.0,
+"texture": ExtResource("19_2rivt")
+}, {
+"duration": 1.0,
+"texture": ExtResource("20_dyfa4")
+}, {
+"duration": 1.0,
+"texture": ExtResource("21_50juq")
+}, {
+"duration": 1.0,
+"texture": ExtResource("22_pktkh")
+}, {
+"duration": 1.0,
+"texture": ExtResource("23_glflc")
+}, {
+"duration": 1.0,
+"texture": ExtResource("24_vwues")
+}, {
+"duration": 1.0,
+"texture": ExtResource("25_wwfqd")
+}, {
+"duration": 1.0,
+"texture": ExtResource("26_qbmv0")
+}, {
+"duration": 1.0,
+"texture": ExtResource("27_bbjb8")
+}, {
+"duration": 1.0,
+"texture": ExtResource("28_vaj2p")
+}, {
+"duration": 1.0,
+"texture": ExtResource("29_bhybq")
+}, {
+"duration": 1.0,
+"texture": ExtResource("30_ehat0")
+}],
+"loop": true,
+"name": &"default",
+"speed": 29.0
+}]
+
+[node name="Sun" type="Node2D" unique_id=1217136317]
+script = ExtResource("1_kxd7v")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=503425181]
+sprite_frames = SubResource("SpriteFrames_n3xv6")
+frame_progress = 0.4926139

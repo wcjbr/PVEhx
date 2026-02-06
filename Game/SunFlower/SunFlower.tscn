@@ -1,0 +1,101 @@
+[gd_scene format=3 uid="uid://bdqi6jcpd18lf"]
+
+[ext_resource type="Texture2D" uid="uid://cnc73fduvnqky" path="res://Game/SunFlower/frame_001.png" id="1_4s0ck"]
+[ext_resource type="Texture2D" uid="uid://bfko3dc2g01sn" path="res://Game/Menu/植物卡牌.png" id="1_pumyo"]
+[ext_resource type="Script" uid="uid://bg5stv82dhetw" path="res://Game/SunFlower/SunFlower.cs" id="1_wvm36"]
+[ext_resource type="PackedScene" uid="uid://celbx00iui3wu" path="res://Game/Sun/Sun.tscn" id="2_lcjr2"]
+[ext_resource type="Texture2D" uid="uid://bq6lj74s283vw" path="res://Game/SunFlower/frame_002.png" id="2_pumyo"]
+[ext_resource type="Texture2D" uid="uid://chokj1eurxswp" path="res://Game/SunFlower/frame_003.png" id="3_wvm36"]
+[ext_resource type="Texture2D" uid="uid://b4oxu2yhqt44r" path="res://Game/SunFlower/frame_004.png" id="4_lcjr2"]
+[ext_resource type="Texture2D" uid="uid://ttbwneuqbykm" path="res://Game/SunFlower/frame_005.png" id="5_tsy80"]
+[ext_resource type="Texture2D" uid="uid://bdc7hna0gvce7" path="res://Game/SunFlower/frame_006.png" id="6_w6ey2"]
+[ext_resource type="Texture2D" uid="uid://gpuxqmdupaxi" path="res://Game/SunFlower/frame_007.png" id="7_h3qav"]
+[ext_resource type="Texture2D" uid="uid://bufp2h7d8w8th" path="res://Game/SunFlower/frame_008.png" id="8_vqd0i"]
+[ext_resource type="Texture2D" uid="uid://bmunj6jlp3aqb" path="res://Game/SunFlower/frame_009.png" id="9_bj7wb"]
+[ext_resource type="Texture2D" uid="uid://cir5lk0dxclda" path="res://Game/SunFlower/frame_010.png" id="10_1f5ga"]
+[ext_resource type="Texture2D" uid="uid://bwtef2yyxapxr" path="res://Game/SunFlower/frame_011.png" id="11_tnllh"]
+[ext_resource type="Texture2D" uid="uid://w8ydvxu48gpb" path="res://Game/SunFlower/frame_012.png" id="12_nru5h"]
+[ext_resource type="Texture2D" uid="uid://df7jrqy0hb5ib" path="res://Game/SunFlower/frame_013.png" id="13_moh5o"]
+[ext_resource type="Texture2D" uid="uid://s0ai16tdgxlj" path="res://Game/SunFlower/frame_014.png" id="14_oonrk"]
+[ext_resource type="Texture2D" uid="uid://dui8kxpvfrbbi" path="res://Game/SunFlower/frame_015.png" id="15_n1pk1"]
+[ext_resource type="Texture2D" uid="uid://rkewrmajd88v" path="res://Game/SunFlower/frame_016.png" id="16_w40mp"]
+[ext_resource type="Texture2D" uid="uid://dl3l2tcte8py1" path="res://Game/SunFlower/frame_017.png" id="17_1yuji"]
+[ext_resource type="Texture2D" uid="uid://ci68wj8mia3yh" path="res://Game/SunFlower/frame_018.png" id="18_1ulug"]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_r2057"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_pumyo")
+}],
+"loop": true,
+"name": &"Carded",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_4s0ck")
+}, {
+"duration": 1.0,
+"texture": ExtResource("2_pumyo")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_wvm36")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_lcjr2")
+}, {
+"duration": 1.0,
+"texture": ExtResource("5_tsy80")
+}, {
+"duration": 1.0,
+"texture": ExtResource("6_w6ey2")
+}, {
+"duration": 1.0,
+"texture": ExtResource("7_h3qav")
+}, {
+"duration": 1.0,
+"texture": ExtResource("8_vqd0i")
+}, {
+"duration": 1.0,
+"texture": ExtResource("9_bj7wb")
+}, {
+"duration": 1.0,
+"texture": ExtResource("10_1f5ga")
+}, {
+"duration": 1.0,
+"texture": ExtResource("11_tnllh")
+}, {
+"duration": 1.0,
+"texture": ExtResource("12_nru5h")
+}, {
+"duration": 1.0,
+"texture": ExtResource("13_moh5o")
+}, {
+"duration": 1.0,
+"texture": ExtResource("14_oonrk")
+}, {
+"duration": 1.0,
+"texture": ExtResource("15_n1pk1")
+}, {
+"duration": 1.0,
+"texture": ExtResource("16_w40mp")
+}, {
+"duration": 1.0,
+"texture": ExtResource("17_1yuji")
+}, {
+"duration": 1.0,
+"texture": ExtResource("18_1ulug")
+}],
+"loop": true,
+"name": &"Planted",
+"speed": 18.0
+}]
+
+[node name="SunFlower" type="Node2D" unique_id=630221073]
+script = ExtResource("1_wvm36")
+sunScene = ExtResource("2_lcjr2")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1983582810]
+sprite_frames = SubResource("SpriteFrames_r2057")
+animation = &"Carded"
