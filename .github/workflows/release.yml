@@ -35,9 +35,13 @@ jobs:
           path: .
 
   export-godot:
-    name: Export Godot Game
+    name: Export Game
     needs: build-dotnet
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        # 这里必须对应 .cfg 文件里的 name="Linux" 和 name="Windows"
+        platform: [Linux, Windows] 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -57,15 +61,15 @@ jobs:
           godot_export_templates_download_url: https://github.com/godotengine/godot/releases/download/4.3-stable/Godot_v4.3-stable_mono_export_templates.tpz
           relative_project_path: ./
           archive_output: true
-          presets_to_export: "Linux"
-          relative_export_path: "Output/PVZ"
+          presets_to_export: ${{ matrix.platform }}
+          # 导出到对应的文件夹
+          relative_export_path: "Output/${{ matrix.platform }}"
 
       - name: Upload Exported Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: linux-release
-          # 修正路径：去 Output/PVZ 目录下找生成的 zip
-          path: Output/PVZ/*.zip
+          name: ${{ matrix.platform }}-release
+          path: Output/${{ matrix.platform }}/*.zip
 
   release:
     name: Create GitHub Release
@@ -73,16 +77,16 @@ jobs:
     needs: export-godot
     runs-on: ubuntu-latest
     steps:
-      - name: Download Linux Export
+      - name: Download All Exports
         uses: actions/download-artifact@v4
         with:
-          name: linux-release
+          pattern: "*-release"
           path: ./release-files
+          merge-multiple: true
 
       - name: Create Release
         uses: ncipollo/release-action@v1
         with:
-          # 确保这里的路径也对应上
           artifacts: "release-files/*.zip"
           tag: ${{ github.ref_name }}
           name: Release ${{ github.ref_name }}
