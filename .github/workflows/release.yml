@@ -35,7 +35,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        os: [ubuntu-latest]
     steps:
       - uses: actions/checkout@v4
 
@@ -57,13 +57,6 @@ jobs:
           mkdir -p Output/PVZ
           godot-headless --export "Linux" "Output/PVZ/${{ github.ref_name != '' && github.ref_name || 'dev' }}.x86_64"
 
-      - name: Export for Windows
-        if: matrix.os == 'windows-latest'
-        shell: pwsh
-        run: |
-          New-Item -ItemType Directory -Force -Path Output\PVZ | Out-Null
-          & "$env:RUNNER_TOOL_CACHE\Godot\4.6.0\x64\godot.exe" --export "Windows" "Output\PVZ\${{ github.ref_name != '' && github.ref_name || 'dev' }}.exe"
-
       - name: Upload exported artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -84,19 +77,11 @@ jobs:
           path: ./exports/linux
         continue-on-error: true
 
-      - name: Download Windows exports
-        uses: actions/download-artifact@v4
-        with:
-          name: exports-windows-latest
-          path: ./exports/windows
-        continue-on-error: true
-
       - name: Create GitHub Release and upload artifacts
         uses: ncipollo/release-action@v1
         with:
           artifacts: |
             exports/linux/*
-            exports/windows/*
           tag: ${{ github.ref_name }}
           name: Release ${{ github.ref_name }}
         env:
