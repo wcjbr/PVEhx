@@ -65,11 +65,19 @@ jobs:
           mkdir -p Output/${{ matrix.platform }}
           
           if [ "${{ matrix.platform }}" == "Android" ]; then
-            # 1. 尝试通过设置 override 文件（这是 Godot 最优先读取的配置）
-            echo 'dotnet/android/enable_experimental_export=true' > override.cfg
+            # 1. 创建编辑器设置文件（必须是 .text 格式）
+            mkdir -p ~/.config/godot
+            cat <<EOF > ~/.config/godot/editor_settings-4.trep
+            dotnet/android/enable_experimental_export = true
+            EOF
             
-            # 2. 执行导出，并显式指定渲染器和音频驱动
-            ./godot --headless --path . --audio-driver Dummy --rendering-driver opengl3 --export-release "Android" "Output/Android/PVZ.apk"
+            # 2. 【核心】使用环境变量指定设置文件，并强制覆盖属性
+            # 注意：这里我们使用了 --editor 参数先初始化环境，再执行 export
+            ./godot --headless --path . --audio-driver Dummy \
+              -e --quit --set "dotnet/android/enable_experimental_export=true"
+            
+            ./godot --headless --path . --audio-driver Dummy \
+              --export-release "Android" "Output/Android/PVZ.apk"
             
           elif [ "${{ matrix.platform }}" == "Windows" ]; then
             ./godot --headless --path . --audio-driver Dummy --export-release "Windows" "Output/Windows/PVZ.exe"
