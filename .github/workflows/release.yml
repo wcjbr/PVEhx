@@ -55,11 +55,20 @@ jobs:
         if: matrix.platform == 'Android'
         uses: android-actions/setup-android@v3
 
-      # 关键步骤：自动为安卓生成临时证书
+      # 关键步骤 1：生成临时安卓证书
       - name: Generate Temporary Keystore
         if: matrix.platform == 'Android'
         run: |
           keytool -genkey -v -keystore release.keystore -alias androiddebugkey -keyalg RSA -keysize 2048 -validity 10000 -storepass android -keypass android -dname "CN=Android Debug, O=Android, C=US"
+
+      # 关键步骤 2：强制开启实验性 .NET 导出支持
+      # 这样 Godot 就不会因为 "C#/.NET is experimental" 而报错退出
+      - name: Enable Experimental .NET Export
+        if: matrix.platform == 'Android'
+        run: |
+          mkdir -p ~/.config/godot
+          echo '[network/debug]' > ~/.config/godot/editor_settings-4.trep
+          echo 'dotnet/android/enable_experimental_export = true' >> ~/.config/godot/editor_settings-4.trep
 
       - name: Download .NET Binaries
         uses: actions/download-artifact@v4
@@ -76,6 +85,8 @@ jobs:
           archive_output: ${{ matrix.platform != 'Android' }}
           presets_to_export: ${{ matrix.platform }}
           relative_export_path: "Output/${{ matrix.platform }}"
+          # 增加额外的导出标志（如果 Action 支持）
+          verbose: true
 
       - name: Upload Exported Artifact
         uses: actions/upload-artifact@v4
