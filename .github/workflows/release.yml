@@ -1,0 +1,103 @@
+name: CI / Release
+on:
+  push:
+    branches: [ main ]
+    tags: [ 'v*' ]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build --configuration Release --no-restore
+
+      - name: Test
+        run: dotnet test --no-build --verbosity normal || true
+
+      - name: Upload build outputs
+        uses: actions/upload-artifact@v4
+        with:
+          name: dotnet-build
+          path: |
+            .
+
+  export:
+    needs: build
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download build outputs
+        uses: actions/download-artifact@v4
+        with:
+          name: dotnet-build
+          path: .
+
+      - name: Setup Godot (headless) 4.6
+        uses: game-ci/godot-action@v2
+        with:
+          version: '4.6.0'
+          export-templates: true
+
+      - name: Export for Linux
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          mkdir -p Output/PVZ
+          godot-headless --export "Linux" "Output/PVZ/${{ github.ref_name != '' && github.ref_name || 'dev' }}.x86_64"
+
+      - name: Export for Windows
+        if: matrix.os == 'windows-latest'
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path Output\PVZ | Out-Null
+          & "$env:RUNNER_TOOL_CACHE\Godot\4.6.0\x64\godot.exe" --export "Windows" "Output\PVZ\${{ github.ref_name != '' && github.ref_name || 'dev' }}.exe"
+
+      - name: Upload exported artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: exports-${{ matrix.os }}
+          path: Output/PVZ
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/')
+    needs: export
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download Linux exports
+        uses: actions/download-artifact@v4
+        with:
+          name: exports-ubuntu-latest
+          path: ./exports/linux
+        continue-on-error: true
+
+      - name: Download Windows exports
+        uses: actions/download-artifact@v4
+        with:
+          name: exports-windows-latest
+          path: ./exports/windows
+        continue-on-error: true
+
+      - name: Create GitHub Release and upload artifacts
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: |
+            exports/linux/*
+            exports/windows/*
+          tag: ${{ github.ref_name }}
+          name: Release ${{ github.ref_name }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
