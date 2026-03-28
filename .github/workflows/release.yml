@@ -64,19 +64,27 @@ jobs:
         run: |
           mkdir -p Output/${{ matrix.platform }}
           
-          # 核心修正：通过环境变量和项目文件双重注入实验性支持
           if [ "${{ matrix.platform }}" == "Android" ]; then
-            # 强制在项目文件中开启（如果还没开启的话）
-            sed -i '/\[dotnet\]/!b;n;candroid/enable_experimental_export=true' project.godot || echo -e "\n[dotnet]\nandroid/enable_experimental_export=true" >> project.godot
-            
-            # 使用环境变量覆盖编辑器设置并执行
-            ./godot --headless --path . --export-release "Android" "Output/Android/PVZ.apk"
+            # 1. 暴力修改 project.godot：如果已存在 [dotnet] 则插入，不存在则追加
+            if grep -q "\[dotnet\]" project.godot; then
+              sed -i '/\[dotnet\]/a android/enable_experimental_export=true' project.godot
+            else
+              echo -e "\n[dotnet]\nandroid/enable_experimental_export=true" >> project.godot
+            fi
+
+            # 2. 伪造编辑器设置 (强制开启开关)
+            mkdir -p ~/.config/godot
+            echo 'dotnet/android/enable_experimental_export = true' > ~/.config/godot/editor_settings-4.trep
+
+            # 3. 运行导出 (增加 --audio-driver Dummy 提高稳定性)
+            ./godot --headless --path . --audio-driver Dummy --export-release "Android" "Output/Android/PVZ.apk"
+          
           elif [ "${{ matrix.platform }}" == "Windows" ]; then
-            ./godot --headless --path . --export-release "Windows" "Output/Windows/PVZ.exe"
-            zip -jr Output/Windows-Release.zip Output/Windows/
+            ./godot --headless --path . --audio-driver Dummy --export-release "Windows" "Output/Windows/PVZ.exe"
+            cd Output/Windows && zip -jr ../Windows-Release.zip . && cd ../..
           else
-            ./godot --headless --path . --export-release "Linux" "Output/Linux/PVZ.x86_64"
-            zip -jr Output/Linux-Release.zip Output/Linux/
+            ./godot --headless --path . --audio-driver Dummy --export-release "Linux" "Output/Linux/PVZ.x86_64"
+            cd Output/Linux && zip -jr ../Linux-Release.zip . && cd ../..
           fi
 
       - name: Upload Exported Artifact
