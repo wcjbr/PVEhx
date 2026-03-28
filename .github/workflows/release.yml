@@ -26,6 +26,7 @@ jobs:
         run: dotnet restore PVZ.sln
 
       - name: Build
+        # 使用你 .sln 中定义的 ExportRelease 配置
         run: dotnet build PVZ.sln --configuration ExportRelease --no-restore
 
       - name: Upload Build Artifacts
@@ -53,14 +54,14 @@ jobs:
       - name: Godot Export
         uses: firebelley/godot-export@v6.0.0
         with:
-          # 修正后的 Godot 4.3 稳定版 Linux 运行环境链接
+          # 确保使用带有 _mono_ 的版本以支持 C#
           godot_executable_download_url: https://github.com/godotengine/godot/releases/download/4.3-stable/Godot_v4.3-stable_mono_linux_x86_64.zip
           godot_export_templates_download_url: https://github.com/godotengine/godot/releases/download/4.3-stable/Godot_v4.3-stable_mono_export_templates.tpz
           relative_project_path: ./
-          # 修正参数名：根据你的报错日志，应使用以下名称
           archive_output: true
-          presets_to_export: "Linux/X11" # 对应导出预设的名字
-          relative_export_path: "Output/PVZ" # 导出到的文件夹
+          # 根据你的日志，这里必须匹配预设名称 "Linux"
+          presets_to_export: "Linux"
+          relative_export_path: "Output/PVZ"
 
       - name: Upload Exported Artifact
         uses: actions/upload-artifact@v4
