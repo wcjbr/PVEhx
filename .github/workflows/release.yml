@@ -26,7 +26,6 @@ jobs:
         run: dotnet restore PVZ.sln
 
       - name: Build
-        # 使用你 .sln 中定义的 ExportRelease 配置
         run: dotnet build PVZ.sln --configuration ExportRelease --no-restore
 
       - name: Upload Build Artifacts
@@ -54,12 +53,10 @@ jobs:
       - name: Godot Export
         uses: firebelley/godot-export@v6.0.0
         with:
-          # 确保使用带有 _mono_ 的版本以支持 C#
           godot_executable_download_url: https://github.com/godotengine/godot/releases/download/4.3-stable/Godot_v4.3-stable_mono_linux_x86_64.zip
           godot_export_templates_download_url: https://github.com/godotengine/godot/releases/download/4.3-stable/Godot_v4.3-stable_mono_export_templates.tpz
           relative_project_path: ./
           archive_output: true
-          # 根据你的日志，这里必须匹配预设名称 "Linux"
           presets_to_export: "Linux"
           relative_export_path: "Output/PVZ"
 
@@ -67,7 +64,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: linux-release
-          path: ./*.zip
+          # 修正路径：去 Output/PVZ 目录下找生成的 zip
+          path: Output/PVZ/*.zip
 
   release:
     name: Create GitHub Release
@@ -84,6 +82,7 @@ jobs:
       - name: Create Release
         uses: ncipollo/release-action@v1
         with:
+          # 确保这里的路径也对应上
           artifacts: "release-files/*.zip"
           tag: ${{ github.ref_name }}
           name: Release ${{ github.ref_name }}
