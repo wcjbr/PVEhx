@@ -22,11 +22,8 @@ jobs:
         with:
           dotnet-version: '8.0.x'
 
-      - name: Restore
-        run: dotnet restore PVZ.sln
-
       - name: Build
-        run: dotnet build PVZ.sln --configuration ExportRelease --no-restore
+        run: dotnet build PVZ.sln --configuration ExportRelease
 
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v4
@@ -40,13 +37,29 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        # 这里必须对应 .cfg 文件里的 name="Linux" 和 name="Windows"
-        platform: [Linux, Windows] 
+        platform: [Linux, Windows, Android] 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           lfs: true
+
+      - name: Setup Java (Android Required)
+        if: matrix.platform == 'Android'
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Android SDK
+        if: matrix.platform == 'Android'
+        uses: android-actions/setup-android@v3
+
+      # 关键步骤：自动为安卓生成临时证书
+      - name: Generate Temporary Keystore
+        if: matrix.platform == 'Android'
+        run: |
+          keytool -genkey -v -keystore release.keystore -alias androiddebugkey -keyalg RSA -keysize 2048 -validity 10000 -storepass android -keypass android -dname "CN=Android Debug, O=Android, C=US"
 
       - name: Download .NET Binaries
         uses: actions/download-artifact@v4
@@ -60,16 +73,17 @@ jobs:
           godot_executable_download_url: https://github.com/godotengine/godot/releases/download/4.3-stable/Godot_v4.3-stable_mono_linux_x86_64.zip
           godot_export_templates_download_url: https://github.com/godotengine/godot/releases/download/4.3-stable/Godot_v4.3-stable_mono_export_templates.tpz
           relative_project_path: ./
-          archive_output: true
+          archive_output: ${{ matrix.platform != 'Android' }}
           presets_to_export: ${{ matrix.platform }}
-          # 导出到对应的文件夹
           relative_export_path: "Output/${{ matrix.platform }}"
 
       - name: Upload Exported Artifact
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.platform }}-release
-          path: Output/${{ matrix.platform }}/*.zip
+          path: |
+            Output/${{ matrix.platform }}/*.zip
+            Output/${{ matrix.platform }}/*.apk
 
   release:
     name: Create GitHub Release
@@ -87,7 +101,7 @@ jobs:
       - name: Create Release
         uses: ncipollo/release-action@v1
         with:
-          artifacts: "release-files/*.zip"
+          artifacts: "release-files/*.zip,release-files/*.apk"
           tag: ${{ github.ref_name }}
           name: Release ${{ github.ref_name }}
           token: ${{ secrets.GITHUB_TOKEN }}
