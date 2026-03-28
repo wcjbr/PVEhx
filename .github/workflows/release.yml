@@ -55,20 +55,34 @@ jobs:
         if: matrix.platform == 'Android'
         uses: android-actions/setup-android@v3
 
-      # 关键步骤 1：生成临时安卓证书
-      - name: Generate Temporary Keystore
+      - name: Download Godot & Templates
+        run: |
+          # 下载 Godot Mono 版
+          wget -q https://github.com/godotengine/godot/releases/download/4.3-stable/Godot_v4.3-stable_mono_linux_x86_64.zip
+          unzip Godot_v4.3-stable_mono_linux_x86_64.zip
+          mv Godot_v4.3-stable_mono_linux_x86_64/Godot_v4.3-stable_mono_linux.x86_64 godot
+          mv Godot_v4.3-stable_mono_linux_x86_64/GodotSharp .
+          
+          # 下载导出模板
+          wget -q https://github.com/godotengine/godot/releases/download/4.3-stable/Godot_v4.3-stable_mono_export_templates.tpz
+          mkdir -p ~/.local/share/godot/export_templates/4.3.stable.mono
+          unzip -q Godot_v4.3-stable_mono_export_templates.tpz -d ~/.local/share/godot/export_templates/4.3.stable.mono
+          mv ~/.local/share/godot/export_templates/4.3.stable.mono/templates/* ~/.local/share/godot/export_templates/4.3.stable.mono/
+          chmod +x godot
+
+      - name: Generate Temporary Keystore (Android)
         if: matrix.platform == 'Android'
         run: |
           keytool -genkey -v -keystore release.keystore -alias androiddebugkey -keyalg RSA -keysize 2048 -validity 10000 -storepass android -keypass android -dname "CN=Android Debug, O=Android, C=US"
 
-      # 关键步骤 2：强制开启实验性 .NET 导出支持
-      # 这样 Godot 就不会因为 "C#/.NET is experimental" 而报错退出
-      - name: Enable Experimental .NET Export
+      - name: Force Enable Experimental .NET Export
         if: matrix.platform == 'Android'
         run: |
+          # 强制在编辑器设置中开启实验性支持
           mkdir -p ~/.config/godot
-          echo '[network/debug]' > ~/.config/godot/editor_settings-4.trep
           echo 'dotnet/android/enable_experimental_export = true' >> ~/.config/godot/editor_settings-4.trep
+          # 同时也写入项目文件以防万一
+          echo 'dotnet/android/enable_experimental_export=true' >> project.godot
 
       - name: Download .NET Binaries
         uses: actions/download-artifact@v4
@@ -76,25 +90,26 @@ jobs:
           name: dotnet-binaries
           path: .
 
-      - name: Godot Export
-        uses: firebelley/godot-export@v6.0.0
-        with:
-          godot_executable_download_url: https://github.com/godotengine/godot/releases/download/4.3-stable/Godot_v4.3-stable_mono_linux_x86_64.zip
-          godot_export_templates_download_url: https://github.com/godotengine/godot/releases/download/4.3-stable/Godot_v4.3-stable_mono_export_templates.tpz
-          relative_project_path: ./
-          archive_output: ${{ matrix.platform != 'Android' }}
-          presets_to_export: ${{ matrix.platform }}
-          relative_export_path: "Output/${{ matrix.platform }}"
-          # 增加额外的导出标志（如果 Action 支持）
-          verbose: true
+      - name: Execute Godot Export
+        run: |
+          mkdir -p Output/${{ matrix.platform }}
+          if [ "${{ matrix.platform }}" == "Android" ]; then
+            ./godot --headless --verbose --export-release "Android" "Output/Android/PVZ.apk"
+          elif [ "${{ matrix.platform }}" == "Windows" ]; then
+            ./godot --headless --verbose --export-release "Windows" "Output/Windows/PVZ.exe"
+            cd Output/Windows && zip -r ../../Windows-Release.zip . && cd ../..
+          else
+            ./godot --headless --verbose --export-release "Linux" "Output/Linux/PVZ.x86_64"
+            cd Output/Linux && zip -r ../../Linux-Release.zip . && cd ../..
+          fi
 
       - name: Upload Exported Artifact
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.platform }}-release
           path: |
-            Output/${{ matrix.platform }}/*.zip
-            Output/${{ matrix.platform }}/*.apk
+            *.zip
+            Output/Android/*.apk
 
   release:
     name: Create GitHub Release
