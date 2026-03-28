@@ -6,7 +6,7 @@ on:
     tags: [ 'v*' ]
 
 permissions:
-  contents: write # 允许创建 Release 并上传文件
+  contents: write
 
 jobs:
   build-dotnet:
@@ -26,7 +26,6 @@ jobs:
         run: dotnet restore PVZ.sln
 
       - name: Build
-        # 使用你 .sln 中定义的正确配置名称
         run: dotnet build PVZ.sln --configuration ExportRelease --no-restore
 
       - name: Upload Build Artifacts
@@ -51,18 +50,17 @@ jobs:
           name: dotnet-binaries
           path: .
 
-      - name: Godot Android/Linux Export
+      - name: Godot Export
         uses: firebelley/godot-export@v6.0.0
         with:
-          # 下载官方 4.3 稳定版 (Headless 模式)
-          godot_executable_download_url: https://github.com/godotengine/godot/releases/download/4.3-stable/Godot_v4.3-stable_linux_headless.64.zip
-          godot_export_templates_download_url: https://github.com/godotengine/godot/releases/download/4.3-stable/Godot_v4.3-stable_export_templates.tpz
+          # 修正后的 Godot 4.3 稳定版 Linux 运行环境链接
+          godot_executable_download_url: https://github.com/godotengine/godot/releases/download/4.3-stable/Godot_v4.3-stable_mono_linux_x86_64.zip
+          godot_export_templates_download_url: https://github.com/godotengine/godot/releases/download/4.3-stable/Godot_v4.3-stable_mono_export_templates.tpz
           relative_project_path: ./
-          archive_export_output: true
-          # 确保你在 Godot 编辑器里的导出预设名称叫 "Linux/X11"
-          # 如果你的预设叫 "Linux"，请修改下方名称
-          export_preset_name: Linux/X11
-          use_godot_4: true
+          # 修正参数名：根据你的报错日志，应使用以下名称
+          archive_output: true
+          presets_to_export: "Linux/X11" # 对应导出预设的名字
+          relative_export_path: "Output/PVZ" # 导出到的文件夹
 
       - name: Upload Exported Artifact
         uses: actions/upload-artifact@v4
@@ -70,7 +68,7 @@ jobs:
           name: linux-release
           path: ./*.zip
 
-  create-release:
+  release:
     name: Create GitHub Release
     if: startsWith(github.ref, 'refs/tags/')
     needs: export-godot
