@@ -26,7 +26,7 @@ jobs:
         with:
           dotnet-version: '8.0.x'
 
-      - name: Setup Java (Android Required)
+      - name: Setup Java
         if: matrix.platform == 'Android'
         uses: actions/setup-java@v4
         with:
@@ -65,22 +65,11 @@ jobs:
           mkdir -p Output/${{ matrix.platform }}
           
           if [ "${{ matrix.platform }}" == "Android" ]; then
-            # --- 核心欺骗逻辑开始 ---
-            # 1. 暂时把所有 .cs 文件重命名为 .cs.bak，让 Godot 找不到 C# 脚本
-            find . -name "*.cs" -exec mv {} {}.bak \;
+            # 1. 尝试通过设置 override 文件（这是 Godot 最优先读取的配置）
+            echo 'dotnet/android/enable_experimental_export=true' > override.cfg
             
-            # 2. 执行导出 (此时 Godot 认为这不是 C# 项目，不会报实验性错误)
-            ./godot --headless --path . --audio-driver Dummy --export-release "Android" "Output/Android/PVZ.apk" || true
-            
-            # 3. 无论成功与否，立刻还原所有 .cs 文件
-            find . -name "*.cs.bak" -exec sh -c 'mv "$1" "${1%.bak}"' _ {} \;
-            # --- 核心欺骗逻辑结束 ---
-            
-            # 检查 APK 是否真的生成了
-            if [ ! -f "Output/Android/PVZ.apk" ]; then
-              echo "Error: APK not found! Export failed."
-              exit 1
-            fi
+            # 2. 执行导出，并显式指定渲染器和音频驱动
+            ./godot --headless --path . --audio-driver Dummy --rendering-driver opengl3 --export-release "Android" "Output/Android/PVZ.apk"
             
           elif [ "${{ matrix.platform }}" == "Windows" ]; then
             ./godot --headless --path . --audio-driver Dummy --export-release "Windows" "Output/Windows/PVZ.exe"
